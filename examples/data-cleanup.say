@@ -1,0 +1,26 @@
+# Data Cleanup — take a messy CSV export (ragged spacing, mixed
+# case, duplicate rows, an empty row) and produce one clean list.
+# Duplicates disappear because 'collect' never keeps the same
+# cleaned row twice.
+#
+# Run:  python3 sayflow.py examples/data-cleanup.say
+
+workflow "Data Cleanup"
+
+for each line in "sample/messy.csv":
+  if line is not empty:
+    set name to trimmed of field 1 of line split by ","
+    if name is not empty:
+      if lowercase of name equals "name":
+        say "Skipping the header row."
+      otherwise:
+        set row to capitalised of name + " | " + lowercase of trimmed of field 2 of line split by "," + " | " + uppercase of trimmed of field 3 of line split by ","
+        collect row in cleaned
+      end
+    end
+  end
+end
+
+set total to length of cleaned
+write cleaned to "sample/out/people-clean.txt"
+say "Cleaned list written to sample/out/people-clean.txt — {total} unique people."

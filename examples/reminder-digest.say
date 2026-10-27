@@ -1,0 +1,49 @@
+# Reminder Digest — read a plain-text reminder list and build a
+# grouped digest: urgent first, then today, then everything later.
+# Each line of reminders.txt looks like:  date | task | flag
+#
+# Run:  python3 sayflow.py examples/reminder-digest.say
+
+workflow "Reminder Digest"
+
+set today to "2026-10-26"
+say "Building the digest for {today}..."
+
+for each line in "sample/reminders.txt":
+  set when to trimmed of field 1 of line split by "|"
+  set what to trimmed of field 2 of line split by "|"
+  set flag to trimmed of field 3 of line split by "|"
+  if flag equals "urgent":
+    collect when + " — " + what in urgentlist
+  otherwise:
+    if when equals today:
+      collect when + " — " + what in todaylist
+    otherwise:
+      collect when + " — " + what in laterlist
+    end
+  end
+end
+
+set urgentcount to length of urgentlist
+set todaycount to length of todaylist
+set latercount to length of laterlist
+
+collect "Reminder digest for " + today in digest
+collect "" in digest
+collect "URGENT (" + urgentcount + "):" in digest
+for each line in urgentlist:
+  collect "  * " + line in digest
+end
+collect "" in digest
+collect "TODAY (" + todaycount + "):" in digest
+for each line in todaylist:
+  collect "  * " + line in digest
+end
+collect "" in digest
+collect "LATER (" + latercount + "):" in digest
+for each line in laterlist:
+  collect "  * " + line in digest
+end
+
+write digest to "sample/out/digest.txt"
+say "Digest written to sample/out/digest.txt — {urgentcount} urgent, {todaycount} today, {latercount} later."

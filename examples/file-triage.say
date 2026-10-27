@@ -1,0 +1,29 @@
+# File Triage — sort a messy inbox folder by reading each file's
+# name and type, the way you'd describe doing it by hand.
+#
+# Run:  python3 sayflow.py examples/file-triage.say
+# Reset the sample data afterwards with:  python3 reset_samples.py
+
+workflow "File Triage"
+
+set inbox to "sample/inbox"
+count files in inbox into total
+say "Triaging {total} files from {inbox}..."
+
+for each file in inbox:
+  if filename contains "invoice":
+    move file to "sample/sorted/invoices"
+  otherwise:
+    if extension equals "md":
+      move file to "sample/sorted/notes"
+    otherwise:
+      if extension equals "csv":
+        move file to "sample/sorted/data"
+      otherwise:
+        move file to "sample/sorted/other"
+      end
+    end
+  end
+end
+
+say "Done — invoices, notes, data and everything else are in sample/sorted."
